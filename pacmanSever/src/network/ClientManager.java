@@ -34,29 +34,42 @@ public class ClientManager extends Thread {
 					break;
 				}
 
-				System.out.println("받은 명령어 : "+msg);
+//				System.out.println("받은 명령어 : " + msg);
 
 				String[] splitString = msg.split("@@");
 
 				if (splitString[0].equals("Game")) {
-
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1]) ? Sever.room.get(i).userPw[1] :  Sever.room.get(i).userPw[0]);
+								p.println("Game@@" + splitString[3]+ "@@"+ splitString[4]);
+								p.flush();
+							} catch (Exception e) {
+								
+							}
+							break;
+						}
+					}
 				} else if (splitString[0].equals("Chatting")) {
 					for (int i = 0; i < Sever.room.size(); i++) {
 						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
 							try {
-								Sever.room.get(i).userPw[0].println("Chatting@@" + splitString[1] + " : " + splitString[3]);
+								Sever.room.get(i).userPw[0]
+										.println("Chatting@@" + splitString[1] + " : " + splitString[3]);
 								Sever.room.get(i).userPw[0].flush();
-								Sever.room.get(i).userPw[1].println("Chatting@@" + splitString[1] + " : " + splitString[3]);
+								Sever.room.get(i).userPw[1]
+										.println("Chatting@@" + splitString[1] + " : " + splitString[3]);
 								Sever.room.get(i).userPw[1].flush();
 							} catch (Exception e) {
-									// TODO: handle exception
+								// TODO: handle exception
 							}
 							break;
 						}
 					}
 				} else if (splitString[0].equals("Setting")) {
 					boolean a = true;
-					
+
 					System.out.println("방 만들기(서버) : 1");
 					for (int i = 0; i < Sever.room.size(); i++) {
 						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
@@ -96,11 +109,11 @@ public class ClientManager extends Thread {
 						userID = splitString[1];
 						Sever.room.get(point).userNames[1] = userID;
 						Sever.room.get(point).userPw[1] = myPw;
-						System.out.println(myPw+" "+ Sever.room.get(point).userPw[1]);
-						System.out.println(userID+" "+Sever.room.get(point).userNames[1]);
+						System.out.println(myPw + " " + Sever.room.get(point).userPw[1]);
+						System.out.println(userID + " " + Sever.room.get(point).userNames[1]);
 
-						Sever.room.get(point).userPw[1].println("Join@@" + true);
-						Sever.room.get(point).userPw[0].println("명령어 이름 뭐하지@@" + Sever.room.get(point).userNames[0]);
+						Sever.room.get(point).userPw[1].println("Join@@" + Sever.room.get(point).userNames[0]);
+						Sever.room.get(point).userPw[0].println("명령어 이름 뭐하지@@" + Sever.room.get(point).userNames[1]);
 						Sever.room.get(point).userPw[1].flush();
 						Sever.room.get(point).userPw[0].flush();
 					}
@@ -109,12 +122,31 @@ public class ClientManager extends Thread {
 					String roomList = "Refresh";
 
 					for (int i = 0; i < Sever.room.size(); i++) {
-						roomList += "@@" + Sever.room.get(i).getRoomID(); 
+						roomList += "@@" + Sever.room.get(i).getRoomID();
 					}
-					
+
 					System.out.println(roomList);
 					myPw.println(roomList);
 					myPw.flush();
+				}  else if (splitString[0].equals("Start")) {
+					System.out.println("start 시도");
+					
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								Sever.room.get(i).userPw[0]
+										.println("Start@@" + "true");
+								Sever.room.get(i).userPw[0].flush();
+								
+								Sever.room.get(i).userPw[1]
+										.println("Start@@" + "true");
+								Sever.room.get(i).userPw[1].flush();
+							} catch (Exception e) {
+								// TODO: handle exception
+							}
+							break;
+						}
+					}
 				} else {
 					Sever.clientList.remove(new PrintWriter(socket.getOutputStream()));
 					socket.close();
@@ -122,12 +154,11 @@ public class ClientManager extends Thread {
 				}
 			}
 
-	}catch(
+		} catch (
 
-	IOException e)
-	{
-		e.printStackTrace();
-	}
+		IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setNum(int num) {

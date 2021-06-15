@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RoomController">
+   <children>
+      <ListView fx:id="chattingView" layoutX="357.0" layoutY="40.0" prefHeight="285.0" prefWidth="229.0" />
+      <Label fx:id="player1Lable" layoutX="51.0" layoutY="110.0" prefHeight="15.0" prefWidth="184.0" text="player 1 : " />
+      <Label fx:id="player2Lable" layoutX="51.0" layoutY="144.0" prefHeight="15.0" prefWidth="184.0" text="player 2 : " />
+      <TextField fx:id="chattingField" layoutX="357.0" layoutY="334.0" prefHeight="23.0" prefWidth="184.0" />
+      <Button fx:id="chattingbtn" layoutX="546.0" layoutY="334.0" mnemonicParsing="false" onAction="#sendChat" text="입력" />
+      <Label layoutX="64.0" layoutY="33.0" text="다른 플레이어가 입장하면 잠시 후 게임이 시작됩니다" />
+      <Button fx:id="startBtn" layoutX="100.0" layoutY="290.0" mnemonicParsing="false" onAction="#gamestart" text="시작" />
+   </children>
+</AnchorPane>
