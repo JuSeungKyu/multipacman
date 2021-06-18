@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import changeUiThread.AddChat;
 import changeUiThread.ChangePlayerLable;
 import changeUiThread.GameStart;
+import changeUiThread.ScoreUpdate;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -44,13 +45,15 @@ public class RoomController implements Initializable {
 	@FXML
 	Label player2Lable;
 	static Label staticPlayer2Lable;
+	@FXML
+	Label scoreLabel;
+	static Label staticScoreLabel;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		this.staticPlayer1Lable = player1Lable;
-		this.staticPlayer2Lable = player2Lable;
-		
-		System.out.println(staticPlayer1Lable + " 라벨 테스트");
+		staticPlayer1Lable = player1Lable;
+		staticPlayer2Lable = player2Lable;
+		staticScoreLabel = scoreLabel;
 		
 		itemlist = FXCollections.observableArrayList();
 		chattingView.setItems(itemlist);
@@ -62,6 +65,7 @@ public class RoomController implements Initializable {
 	
 	public void sendChat() {
 		Util.client.MsgSend(chattingField.getText());
+		chattingField.setText("");
 	}
 	
 	public static void enterGame() {
@@ -74,5 +78,12 @@ public class RoomController implements Initializable {
 	
 	public static void addChatting(String msg) {
 		new AddChat(msg, itemlist).start();
+	}
+	
+	public static void scoreUpdate() {
+		try {
+			new ScoreUpdate(staticScoreLabel).start();
+		} catch (Exception e) {
+		}
 	}
 }

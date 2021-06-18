@@ -15,13 +15,11 @@ public class ChangePlayerLable extends Thread{
 		this.name2 = name2;
 		this.label1 = label1;
 		this.label2 = label2;
-		System.out.println("플레이어 이름 라벨 변경 시작");
 	}
 
 	@Override
 	public void run() {
 		super.run();
-		System.out.println(name1 +" "+ name2);
 		Platform.runLater(()->{
 			label1.setText(name1);
 			label2.setText(name2);

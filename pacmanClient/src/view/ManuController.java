@@ -39,32 +39,25 @@ public class ManuController implements Initializable {
 	private TextField joinRoomName;
 
 	public void initialize(URL location, ResourceBundle resources) {
-		System.out.println("mainmenu 로딩");
 		_roomName = roomName;
 		
 		itemlist = FXCollections.observableArrayList();
 		roomList.setItems(itemlist);
 
 		client = new Client();
-		System.out.println("접속테스트:2");
 		client.idSetting(Util.id);
 		client.start();
 
 		Util.client = client;
-
-		System.out.println("버퍼리더 로딩 시작");
-		System.out.println("Mainmenu 로딩 끝");
 		
 		listRefresh();
 	}
 
 	public void createRoom() {
 		if (roomName.getText().isEmpty()) {
-			Util.alert("방 이름을 입력해주세요");
 		}
 		String name = roomName.getText();
 
-		System.out.println(name + "방 만들기 시도");
 		if (name.contains("@")) {
 			Util.alert("@는 입력할 수 없습니다");
 			return;
@@ -79,7 +72,6 @@ public class ManuController implements Initializable {
 		}
 		String name = joinRoomName.getText();
 
-		System.out.println(name + "방 입장 시도");
 		if (name.contains("@")) {
 			Util.alert("@는 입력할 수 없습니다");
 			return;

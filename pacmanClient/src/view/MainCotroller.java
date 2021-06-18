@@ -47,7 +47,6 @@ public class MainCotroller implements Initializable {
 
 		Util.id = id;
 
-		System.out.println("다음 씬 로딩 시작");
 		Stage newStage = new Stage();
 		Stage stage = (Stage) loginBtn.getScene().getWindow();
 		try {

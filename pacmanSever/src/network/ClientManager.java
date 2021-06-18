@@ -42,11 +42,73 @@ public class ClientManager extends Thread {
 					for (int i = 0; i < Sever.room.size(); i++) {
 						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
 							try {
-								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1]) ? Sever.room.get(i).userPw[1] :  Sever.room.get(i).userPw[0]);
-								p.println("Game@@" + splitString[3]+ "@@"+ splitString[4]);
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1])
+										? Sever.room.get(i).userPw[1]
+										: Sever.room.get(i).userPw[0]);
+								p.println("Game@@" + splitString[3] + "@@" + splitString[4]);
 								p.flush();
 							} catch (Exception e) {
-								
+
+							}
+							break;
+						}
+					}
+				} else if (splitString[0].equals("Dot")) {
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1])
+										? Sever.room.get(i).userPw[1]
+										: Sever.room.get(i).userPw[0]);
+								p.println("Dot@@" + splitString[3]);
+								p.flush();
+							} catch (Exception e) {
+
+							}
+							break;
+						}
+					}
+				} else if (splitString[0].equals("End")) {
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1])
+										? Sever.room.get(i).userPw[1]
+										: Sever.room.get(i).userPw[0]);
+								p.println("End@@1");
+								p.flush();
+							} catch (Exception e) {
+
+							}
+							break;
+						}
+					}
+				} else if (splitString[0].equals("Level")) {
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1])
+										? Sever.room.get(i).userPw[1]
+										: Sever.room.get(i).userPw[0]);
+								p.println("Level@@1");
+								p.flush();
+							} catch (Exception e) {
+
+							}
+							break;
+						}
+					}
+				} else if (splitString[0].equals("Score")) {
+					for (int i = 0; i < Sever.room.size(); i++) {
+						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
+							try {
+								PrintWriter p = (Sever.room.get(i).userNames[0].equals(splitString[1])
+										? Sever.room.get(i).userPw[1]
+										: Sever.room.get(i).userPw[0]);
+								p.println("Score@@" + splitString[3]);
+								p.flush();
+							} catch (Exception e) {
+
 							}
 							break;
 						}
@@ -128,18 +190,16 @@ public class ClientManager extends Thread {
 					System.out.println(roomList);
 					myPw.println(roomList);
 					myPw.flush();
-				}  else if (splitString[0].equals("Start")) {
+				} else if (splitString[0].equals("Start")) {
 					System.out.println("start 시도");
-					
+
 					for (int i = 0; i < Sever.room.size(); i++) {
 						if (Sever.room.get(i).getRoomID().equals(splitString[2])) {
 							try {
-								Sever.room.get(i).userPw[0]
-										.println("Start@@" + "true");
+								Sever.room.get(i).userPw[0].println("Start@@" + "true");
 								Sever.room.get(i).userPw[0].flush();
-								
-								Sever.room.get(i).userPw[1]
-										.println("Start@@" + "true");
+
+								Sever.room.get(i).userPw[1].println("Start@@" + "true");
 								Sever.room.get(i).userPw[1].flush();
 							} catch (Exception e) {
 								// TODO: handle exception

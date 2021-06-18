@@ -13,7 +13,6 @@ public class EnterRoom extends Thread{
 	private TextField roomName;
 	
 	public EnterRoom(TextField roomName) {
-		System.out.println("방 입장 시도");
 		this.roomName = roomName;
 	}
 	
@@ -34,6 +33,5 @@ public class EnterRoom extends Thread{
 				e.printStackTrace();
 			}
 		});
-		System.out.println("방 입장 성공");
 	}
 }

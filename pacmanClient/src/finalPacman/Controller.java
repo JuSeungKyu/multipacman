@@ -11,6 +11,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+import network.Client;
+import util.Util;
 import javafx.application.Platform;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,19 +26,22 @@ public class Controller implements EventHandler<KeyEvent> {
 
 	@FXML
 	private Label scoreLabel;
+	private static Label staticScoreLabel;
+	
 	@FXML
 	private Label levelLabel;
 	@FXML
 	private Label gameOverLabel;
 	@FXML
 	private PacManView pacManView;
-	private PacManModel pacManModel;
+	private static PacManModel pacManModel;
 	private static final String[] levelFiles = { "src/levels/level1.txt", "src/levels/level2.txt",
 			"src/levels/level3.txt" };
 
 	private Timer timer;
+	private static TimerTask timerTask;
 	private static int ghostEatingModeCounter;
-	private boolean paused;
+	public static boolean paused;
 
 	public Controller() {
 		this.paused = false;
@@ -45,6 +52,7 @@ public class Controller implements EventHandler<KeyEvent> {
 	 * the timer.
 	 */
 	public void initialize() {
+		staticScoreLabel = scoreLabel;
 		String file = this.getLevelFile(0);
 		this.pacManModel = new PacManModel();
 		this.update(PacManModel.Direction.NONE);
@@ -57,7 +65,7 @@ public class Controller implements EventHandler<KeyEvent> {
 	 */
 	private void startTimer() {
 		this.timer = new java.util.Timer();
-		TimerTask timerTask = new TimerTask() {
+		timerTask = new TimerTask() {
 			public void run() {
 				Platform.runLater(new Runnable() {
 					public void run() {
@@ -78,22 +86,33 @@ public class Controller implements EventHandler<KeyEvent> {
 	 * @param direction the most recently inputted direction for PacMan to move in
 	 */
 	private void update(PacManModel.Direction direction) {
+		
 		this.pacManModel.step(direction);
+		
 		this.pacManView.update(pacManModel);
+
 		this.scoreLabel.setText(String.format("Score: %d", this.pacManModel.getScore()));
 		this.levelLabel.setText(String.format("Level: %d", this.pacManModel.getLevel()));
+		
 		if (pacManModel.isGameOver()) {
 			this.gameOverLabel.setText(String.format("GAME OVER"));
 			pause();
+			Util.client.end();
+			Util.isEnd[0] = true;
+			closeGame();
+		} else {
+			this.gameOverLabel.setText(String.format(""));
 		}
+		
 		if (pacManModel.isYouWon()) {
-			this.gameOverLabel.setText(String.format("YOU WON!"));
+			this.gameOverLabel.setText(Util.myScore > Util.otherScore ? String.format("YOU WON!")
+					: Util.myScore == Util.otherScore ? String.format("DREW") : String.format("YOU'RE A LOSER"));
 		}
-		// when PacMan is in ghostEatingMode, count down the ghostEatingModeCounter to
-		// reset ghostEatingMode to false when the counter is 0
+		
 		if (pacManModel.isGhostEatingMode()) {
 			ghostEatingModeCounter--;
 		}
+		
 		if (ghostEatingModeCounter == 0 && pacManModel.isGhostEatingMode()) {
 			pacManModel.setGhostEatingMode(false);
 		}
@@ -110,7 +129,9 @@ public class Controller implements EventHandler<KeyEvent> {
 		boolean keyRecognized = true;
 		KeyCode code = keyEvent.getCode();
 		PacManModel.Direction direction = PacManModel.Direction.NONE;
-		if (code == KeyCode.LEFT) {
+		if(paused) {
+			direction = PacManModel.Direction.NONE;
+		} else if (code == KeyCode.LEFT) {
 			direction = PacManModel.Direction.LEFT;
 		} else if (code == KeyCode.RIGHT) {
 			direction = PacManModel.Direction.RIGHT;
@@ -137,8 +158,7 @@ public class Controller implements EventHandler<KeyEvent> {
 	 * Pause the timer
 	 */
 	public void pause() {
-		this.timer.cancel();
-		this.paused = true;
+		paused = true;
 	}
 
 	public double getBoardWidth() {
@@ -164,16 +184,29 @@ public class Controller implements EventHandler<KeyEvent> {
 	public boolean getPaused() {
 		return paused;
 	}
-	
+
 	public static void changePacmanLocation(Point2D point, String str) {
-        try {
-            new Thread(()->{
-                Platform.runLater(()->{
-                    PacManModel.setLocation2(point);
-                    PacManModel.setLastDirection2(str.equals("UP")?Direction.UP:str.equals("DOWN")?Direction.DOWN:str.equals("LEFT")?Direction.LEFT:str.equals("RIGHT")?Direction.RIGHT:Direction.NONE);
-                });
-            }).start();;
-        } catch (Exception e) {
-        }
-    }
+		try {
+			new Thread(() -> {
+				Platform.runLater(() -> {
+					PacManModel.setLocation2(point);
+					PacManModel.setLastDirection2(
+							str.equals("UP") ? Direction.UP
+							: str.equals("DOWN") ? Direction.DOWN
+							: str.equals("LEFT") ? Direction.LEFT
+							: str.equals("RIGHT") ? Direction.RIGHT
+							: Direction.NONE);
+				});
+			}).start();
+		} catch (Exception e) {
+		
+		}
+	}
+	
+	public static void closeGame() {
+		if(Util.isEnd[0] && Util.isEnd[1]) {
+			new changeUiThread.CloseGame(staticScoreLabel).start();
+			timerTask.cancel();
+		}
+	}
 }

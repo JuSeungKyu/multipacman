@@ -10,7 +10,10 @@ import java.util.Observable;
 
 import javax.swing.text.View;
 
+import changeUiThread.CloseGame;
+import changeUiThread.ScoreUpdate;
 import finalPacman.Controller;
+import finalPacman.PacManModel;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import util.Util;
@@ -33,14 +36,24 @@ public class ReadMsg extends Thread {
 				// 수신된 메시지 저장
 				msg = br.readLine();
 				
-				System.out.println("서버로 부터 받은 메시지 : "+msg);
+//				System.out.println("서버로 부터 받은 메시지 : "+msg);
 
 				String[] splitString = msg.split("@@");
 				
 				if(splitString[0].equals("Game")) {
 					String location[] = splitString[1].split("!!");
-					System.out.println(location[0] + " " + location[1]);
 					Controller.changePacmanLocation(new Point2D(Double.parseDouble(location[0]),Double.parseDouble(location[1])), splitString[2]);
+				} else if(splitString[0].equals("Dot")) {
+					String location[] = splitString[1].split("!!");
+					PacManModel.dotSynchronize(Integer.parseInt(location[0]), Integer.parseInt(location[1]));
+				} else if(splitString[0].equals("Score")) {
+					Util.otherScore = Integer.parseInt(splitString[1]);
+					RoomController.scoreUpdate();
+				} else if(splitString[0].equals("End")) {
+					Util.isEnd[1] = true;
+					Controller.closeGame();
+				} else if(splitString[0].equals("Level")) {
+					PacManModel.levelUpdate();
 				} else if(splitString[0].equals("Chatting")) {
 					RoomController.addChatting(splitString[1]);
 				} else if(splitString[0].equals("Setting")) {
@@ -66,7 +79,6 @@ public class ReadMsg extends Thread {
 						view.RoomController.changePlayerLable("player 1 : "  + Util.id, "player 2 : " + splitString[1]);
 					}
 				} else if(splitString[0].equals("Refresh")) {
-					System.out.println("방 정보를 받았습니다");
 					ArrayList<String> roomList = new ArrayList<String>();
 					for(int i = 1; i < splitString.length; i++) {
 						roomList.add(splitString[i]);

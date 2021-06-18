@@ -8,6 +8,7 @@ package finalPacman;
 
 import javafx.geometry.Point2D;
 import util.Util;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import java.io.*;
 
@@ -24,22 +25,22 @@ public class PacManModel {
 	};
 
 	@FXML
-	private int rowCount;
+	private static int rowCount;
 	@FXML
-	private int columnCount;
-	private CellValue[][] grid;
-	private int score;
-	private int level;
-	private int dotCount;
+	private static int columnCount;
+	private static CellValue[][] grid;
+	private static int score;
+	private static int level;
+	private static int dotCount;
 	private static boolean gameOver;
 	private static boolean youWon;
 	private static boolean ghostEatingMode;
-	private Point2D pacmanLocation;
-	private Point2D pacmanVelocity;
-	private Point2D ghost1Location;
-	private Point2D ghost1Velocity;
-	private Point2D ghost2Location;
-	private Point2D ghost2Velocity;
+	private static Point2D pacmanLocation;
+	private static Point2D pacmanVelocity;
+	private static Point2D ghost1Location;
+	private static Point2D ghost1Velocity;
+	private static Point2D ghost2Location;
+	private static Point2D ghost2Velocity;
 	private static Direction lastDirection;
 	private static Direction currentDirection;
 
@@ -61,7 +62,7 @@ public class PacManModel {
 	 *
 	 * @param fileName txt file containing the board configuration
 	 */
-	public void initializeLevel(String fileName) {
+	public static void initializeLevel(String fileName) {
 		File file = new File(fileName);
 		Scanner scanner = null;
 		try {
@@ -158,14 +159,36 @@ public class PacManModel {
 	 *
 	 */
 	public void startNextLevel() {
-		if (this.isLevelComplete()) {
-			this.level++;
+		if (isLevelComplete()) {
+			Util.client.levelUpdate();
+			level++;
 			rowCount = 0;
 			columnCount = 0;
 			youWon = false;
+			gameOver = false;
+			ghostEatingMode = false;
+			Controller.paused = false;
+			try {
+				initializeLevel(Controller.getLevelFile(level - 1));
+			} catch (ArrayIndexOutOfBoundsException e) {
+				// if there are no levels left in the level array, the game ends
+				youWon = true;
+				gameOver = true;
+				level--;
+			}
+		}
+	}
+	
+	public static void levelUpdate() {
+		if (isLevelComplete()) {
+			level++;
+			rowCount = 0;
+			columnCount = 0;
+			youWon = false;
+			Controller.paused = false;
 			ghostEatingMode = false;
 			try {
-				this.initializeLevel(Controller.getLevelFile(level - 1));
+				initializeLevel(Controller.getLevelFile(level - 1));
 			} catch (ArrayIndexOutOfBoundsException e) {
 				// if there are no levels left in the level array, the game ends
 				youWon = true;
@@ -442,6 +465,7 @@ public class PacManModel {
 	 * 
 	 * @param direction the most recently inputted direction for PacMan to move in
 	 */
+
 	public void step(Direction direction) {
 		this.movePacman(direction);
 		// if PacMan is on a small dot, delete small dot
@@ -450,6 +474,8 @@ public class PacManModel {
 			grid[(int) pacmanLocation.getX()][(int) pacmanLocation.getY()] = CellValue.EMPTY;
 			dotCount--;
 			score += 10;
+			Util.setScore(score);
+			Util.client.dotUpdate((int) pacmanLocation.getX() + "!!" + (int) pacmanLocation.getY());
 		}
 		// if PacMan is on a big dot, delete big dot and change game state to
 		// ghost-eating mode and initialize the counter
@@ -457,28 +483,36 @@ public class PacManModel {
 			grid[(int) pacmanLocation.getX()][(int) pacmanLocation.getY()] = CellValue.EMPTY;
 			dotCount--;
 			score += 50;
+			Util.setScore(score);
 			ghostEatingMode = true;
 			Controller.setGhostEatingModeCounter();
+			Util.client.dotUpdate((int) pacmanLocation.getX() + "!!" + (int) pacmanLocation.getY());
 		}
 		// send ghost back to ghosthome if PacMan is on a ghost in ghost-eating mode
 		if (ghostEatingMode) {
 			if (pacmanLocation.equals(ghost1Location)) {
 				sendGhost1Home();
 				score += 100;
+				Util.setScore(score);
 			}
 			if (pacmanLocation.equals(ghost2Location)) {
 				sendGhost2Home();
 				score += 100;
+				Util.setScore(score);
 			}
 		}
 		// game over if PacMan is eaten by a ghost
 		else {
 			if (pacmanLocation.equals(ghost1Location)) {
 				gameOver = true;
+				lastDirection = Direction.NONE;
+				currentDirection = Direction.NONE;
 				pacmanVelocity = new Point2D(0, 0);
 			}
 			if (pacmanLocation.equals(ghost2Location)) {
 				gameOver = true;
+				lastDirection = Direction.NONE;
+				currentDirection = Direction.NONE;
 				pacmanVelocity = new Point2D(0, 0);
 			}
 		}
@@ -490,18 +524,24 @@ public class PacManModel {
 			if (pacmanLocation.equals(ghost1Location)) {
 				sendGhost1Home();
 				score += 100;
+				Util.setScore(score);
 			}
 			if (pacmanLocation.equals(ghost2Location)) {
 				sendGhost2Home();
 				score += 100;
+				Util.setScore(score);
 			}
 		} else {
 			if (pacmanLocation.equals(ghost1Location)) {
 				gameOver = true;
+				lastDirection = Direction.NONE;
+				currentDirection = Direction.NONE;
 				pacmanVelocity = new Point2D(0, 0);
 			}
 			if (pacmanLocation.equals(ghost2Location)) {
 				gameOver = true;
+				lastDirection = Direction.NONE;
+				currentDirection = Direction.NONE;
 				pacmanVelocity = new Point2D(0, 0);
 			}
 		}
@@ -510,6 +550,15 @@ public class PacManModel {
 			pacmanVelocity = new Point2D(0, 0);
 			startNextLevel();
 		}
+	}
+
+	public static void dotSynchronize(int x, int y) {
+		new Thread(()->{
+			Platform.runLater(()->{
+				grid[x][y] = CellValue.EMPTY;
+				dotCount--;
+			});
+		}).start();;
 	}
 
 	/**
@@ -558,8 +607,8 @@ public class PacManModel {
 	 * 
 	 * @return boolean
 	 */
-	public boolean isLevelComplete() {
-		return this.dotCount == 0;
+	public static boolean isLevelComplete() {
+		return dotCount == 0;
 	}
 
 	public static boolean isGameOver() {
@@ -692,19 +741,19 @@ public class PacManModel {
 		this.ghost2Location = ghost2Location;
 	}
 
-    public Point2D getGhost1Velocity() {
-        return ghost1Velocity;
-    }
+	public Point2D getGhost1Velocity() {
+		return ghost1Velocity;
+	}
 
-    public void setGhost1Velocity(Point2D ghost1Velocity) {
-        this.ghost1Velocity = ghost1Velocity;
-    }
+	public void setGhost1Velocity(Point2D ghost1Velocity) {
+		this.ghost1Velocity = ghost1Velocity;
+	}
 
-    public Point2D getGhost2Velocity() {
-        return ghost2Velocity;
-    }
+	public Point2D getGhost2Velocity() {
+		return ghost2Velocity;
+	}
 
-    public void setGhost2Velocity(Point2D ghost2Velocity) {
-        this.ghost2Velocity = ghost2Velocity;
-    }
+	public void setGhost2Velocity(Point2D ghost2Velocity) {
+		this.ghost2Velocity = ghost2Velocity;
+	}
 }

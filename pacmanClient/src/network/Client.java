@@ -21,7 +21,6 @@ public class Client {
 	public void start() {
 		try {
 			socket = new Socket("127.0.0.1", 8899);
-			System.out.println("=== Client start ===");
 			Util.socket = socket;
 			
 			ReadMsg rm = new ReadMsg();
@@ -31,13 +30,11 @@ public class Client {
 		} catch (UnknownHostException e) {
 			System.out.println("서버에 연결할 수 없습니다");
 		} catch (IOException e) {
-			System.out.println("서버에 연결할 수 없습니다");
 			e.printStackTrace();
 		}
 	}
 	
 	public void idSetting(String ID) {
-		System.out.print("ID : "+ ID);
 		userID = ID;
 	}
 	
@@ -52,7 +49,6 @@ public class Client {
 	}
 
 	public void roomSetting(String roomID) {
-		System.out.println("roomID : " + roomID);
 		this.roomID = roomID;
 
 		out.println("Setting@@" + userID + "@@" + roomID);
@@ -61,7 +57,6 @@ public class Client {
 	}
 
 	public void roomJoin(String roomID) {
-		System.out.print("roomID : " + roomID);
 		this.roomID = roomID;
 
 		out.println("Join@@" + userID + "@@" + roomID);
@@ -78,4 +73,23 @@ public class Client {
 		out.flush();
 	}
 	
+	public void sendScore() {
+		out.println("Score@@" + userID + "@@" + roomID + "@@" + Util.myScore);
+		out.flush();
+	}
+	
+	public void dotUpdate(String msg) {
+		out.println("Dot@@" + userID + "@@" + roomID + "@@" + msg);
+		out.flush();
+	}
+	
+	public void levelUpdate() {
+		out.println("Level@@" + userID + "@@" + roomID);
+		out.flush();
+	}
+	
+	public void end() {
+		out.println("End@@" + userID + "@@" + roomID);
+		out.flush();
+	}
 }

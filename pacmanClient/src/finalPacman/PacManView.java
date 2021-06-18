@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import util.Util;
 import finalPacman.PacManModel.CellValue;
 
 public class PacManView extends Group {
@@ -90,6 +91,12 @@ public class PacManView extends Group {
 				}
 				// check which direction PacMan is going in and display the corresponding image
 				if (row == model.getPacmanLocation().getX() && column == model.getPacmanLocation().getY()
+						&& model.isGameOver()) {
+					try {
+						this.cellViews[row][column].setImage(null);
+					} catch (Exception e) {
+					}
+				} else if (row == model.getPacmanLocation().getX() && column == model.getPacmanLocation().getY()
 						&& (PacManModel.getLastDirection() == PacManModel.Direction.RIGHT
 								|| PacManModel.getLastDirection() == PacManModel.Direction.NONE)) {
 					this.cellViews[row][column].setImage(this.pacmanRightImage);
@@ -133,9 +140,15 @@ public class PacManView extends Group {
 						this.cellViews[row][column].setImage(this.ghost2Image);
 					}
 				}
-				
+
 				try {
 					if (row == model.getPacmanLocation2().getX() && column == model.getPacmanLocation2().getY()
+							&& Util.isEnd[1]) {
+						try {
+							this.cellViews[row][column].setImage(null);
+						} catch (Exception e) {
+						}
+					}  else if (row == model.getPacmanLocation2().getX() && column == model.getPacmanLocation2().getY()
 							&& (PacManModel.getLastDirection2() == PacManModel.Direction.RIGHT
 									|| PacManModel.getLastDirection2() == PacManModel.Direction.NONE)) {
 						this.cellViews[row][column].setImage(this.pacmanRightImage);

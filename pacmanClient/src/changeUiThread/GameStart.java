@@ -10,12 +10,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import util.Util;
 
 public class GameStart extends Thread{
 	private Label label;
 	
 	public GameStart(Label label) {
-		System.out.println("게임 시작 시도");
 		this.label = label;
 	}
 	
@@ -25,6 +25,10 @@ public class GameStart extends Thread{
 		
 		Platform.runLater(()->{
 			Stage newStage = new Stage();
+	        Util.myScore = 0;
+	        Util.otherScore = 0;
+	        Util.isEnd[0] = false;
+	        Util.isEnd[1] = false;
 			try {
 		        FXMLLoader loader = new FXMLLoader(getClass().getResource("/finalPacman/pacman.fxml"));
 		        Parent root = loader.load();
@@ -40,6 +44,5 @@ public class GameStart extends Thread{
 				e.printStackTrace();
 			}
 		});
-		System.out.println("게임 시작 성공");
 	}
 }
